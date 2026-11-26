@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>PV Company — Controle de Materiais em Estoque</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- BARRA SUPERIOR -->
+  <header class="app-header no-print">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-logo">PV</div>
+        <div class="brand-text">
+          <h1>PV Company</h1>
+          <span>Controle de Materiais em Estoque</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-outline" id="btnAddProduct" title="Adicionar item personalizado">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Novo Item</span>
+        </button>
+        <button type="button" class="btn btn-danger-outline" id="btnClearAll" title="Zerar todas as quantidades">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg>
+          <span>Zerar</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content no-print">
+
+    <!-- IDENTIFICAÇÃO DA CONTAGEM -->
+    <section class="card meta-card">
+      <div class="section-title">
+        <h2>Identificação da Contagem</h2>
+        <span class="badge-auto-save" id="saveStatus">✓ Salvo automaticamente</span>
+      </div>
+
+      <div class="meta-grid">
+        <div class="form-group">
+          <label for="employeeName">Nome do Funcionário *</label>
+          <input type="text" id="employeeName" placeholder="Ex: João Silva / Expedição" autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <label for="countDate">Data da Contagem</label>
+          <input type="date" id="countDate" />
+        </div>
+
+        <div class="form-group form-group-wide">
+          <label for="countNotes">Observações / Turno / Setor (opcional)</label>
+          <input type="text" id="countNotes" placeholder="Ex: Contagem fechamento do dia — Galpão Principal" />
+        </div>
+      </div>
+    </section>
+
+    <!-- RESUMO E AÇÕES DE PDF / IMPRESSÃO -->
+    <section class="summary-bar">
+      <div class="stats-group">
+        <div class="stat-pill">
+          <span class="stat-label">Catálogo</span>
+          <strong class="stat-value" id="statCatalogTotal">0</strong>
+        </div>
+        <div class="stat-pill stat-pill-highlight">
+          <span class="stat-label">Preenchidos</span>
+          <strong class="stat-value" id="statFilledItems">0</strong>
+        </div>
+        <div class="stat-pill stat-pill-accent">
+          <span class="stat-label">Total Peças</span>
+          <strong class="stat-value" id="statTotalUnits">0</strong>
+        </div>
+      </div>
+
+      <div class="export-group">
+        <button type="button" class="btn btn-secondary" id="btnDownloadPdf">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span>Baixar PDF</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="btnPrintReport">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
+          <span>Imprimir / PDF</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- FILTROS E BUSCA -->
+    <section class="card filter-card">
+      <div class="filter-top">
+        <div class="search-box">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Buscar medida, modelo (SLIM/MINI/Reforçado), cor ou código..." />
+          <button type="button" id="clearSearchBtn" class="clear-search hidden" title="Limpar busca" aria-label="Limpar busca">&times;</button>
+        </div>
+
+        <div class="view-toggle">
+          <button type="button" class="toggle-btn active" data-view="all" id="viewAllBtn">Todos</button>
+          <button type="button" class="toggle-btn" data-view="filled" id="viewFilledBtn">Apenas Preenchidos</button>
+        </div>
+      </div>
+
+      <div class="category-tabs" id="categoryTabs">
+        <!-- Preenchido via JS -->
+      </div>
+    </section>
+
+    <!-- LISTA DE PRODUTOS -->
+    <section id="productListContainer" class="product-sections">
+      <!-- Preenchido via JS -->
+    </section>
+
+  </main>
+
+  <!-- ÁREA EXCLUSIVA DO RELATÓRIO PARA PDF / IMPRESSÃO A4 (FORA DO CONTAINER) -->
+  <section id="printableReport" class="print-sheet">
+    <div class="print-header">
+      <div class="print-brand">
+        <div class="print-logo">PV</div>
+        <div>
+          <h1>PV COMPANY</h1>
+          <p>Relatório de Conferência e Disponibilidade de Materiais em Estoque</p>
+        </div>
+      </div>
+      <div class="print-meta-box">
+        <div><strong>Data:</strong> <span id="printDate">—</span></div>
+        <div><strong>Emissão:</strong> <span id="printTime">—</span></div>
+      </div>
+    </div>
+
+    <div class="print-info-grid">
+      <div><strong>Responsável pela Contagem:</strong> <span id="printEmployee">Não informado</span></div>
+      <div><strong>Total de Itens Listados:</strong> <span id="printItemCount">0</span></div>
+      <div class="print-notes-row"><strong>Observações:</strong> <span id="printNotes">Nenhuma observação registrada.</span></div>
+    </div>
+
+    <table class="print-table">
+      <thead>
+        <tr>
+          <th style="width: 17%;">Código</th>
+          <th style="width: 21%;">Categoria</th>
+          <th style="width: 40%;">Descrição do Material</th>
+          <th style="width: 8%; text-align: center;">Unid.</th>
+          <th style="width: 14%; text-align: right;">Qtd. Disp.</th>
+        </tr>
+      </thead>
+      <tbody id="printTableBody">
+        <!-- Preenchido dinamicamente antes da impressão/PDF -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" style="text-align: right;"><strong>TOTAL GERAL DE UNIDADES DISPONÍVEIS:</strong></td>
+          <td style="text-align: right;"><strong id="printGrandTotal">0</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="print-footer">
+      <div class="signature-box">
+        <div class="signature-line"></div>
+        <span>Assinatura do Responsável (<span id="printSignName">Funcionário</span>)</span>
+      </div>
+      <div class="signature-box">
+        <div class="signature-line"></div>
+        <span>Conferência / Supervisão de Estoque</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL PARA ADICIONAR NOVO PRODUTO -->
+  <div class="modal-backdrop hidden no-print" id="addModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Adicionar Material ao Catálogo</h3>
+        <button type="button" class="modal-close" id="closeModalBtn" aria-label="Fechar">&times;</button>
+      </div>
+      <form id="addProductForm">
+        <div class="form-group">
+          <label for="newProdCode">Código (opcional)</label>
+          <input type="text" id="newProdCode" placeholder="Ex: PVC-099" />
+        </div>
+        <div class="form-group">
+          <label for="newProdCategory">Categoria *</label>
+          <select id="newProdCategory" required>
+            <option value="Colunas SLIM">Colunas SLIM</option>
+            <option value="Colunas MINI">Colunas MINI</option>
+            <option value="Colunas Reforçado (Novo)">Colunas Reforçado (Novo)</option>
+            <option value="Colunas Reforçado (Antigo)">Colunas Reforçado (Antigo)</option>
+            <option value="Longarinas SLIM">Longarinas SLIM</option>
+            <option value="Longarinas MINI">Longarinas MINI</option>
+            <option value="Longarinas MINI 500kg">Longarinas MINI 500kg</option>
+            <option value="Longarinas Reforçado 2000kg (Novo)">Longarinas Reforçado 2000kg (Novo)</option>
+            <option value="Longarinas Reforçado 2000kg (Antigo)">Longarinas Reforçado 2000kg (Antigo)</option>
+            <option value="Outros Materiais">Outros Materiais</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="newProdName">Nome / Medida / Cor do Material *</label>
+          <input type="text" id="newProdName" placeholder="Ex: Bandeja 2,00m x 60 — Cinza" required />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="newProdUnit">Unidade *</label>
+            <select id="newProdUnit">
+              <option value="UN">UN (Unidade)</option>
+              <option value="PC">PÇ (Peça)</option>
+              <option value="PAR">PAR</option>
+              <option value="KIT">KIT</option>
+              <option value="CX">CX (Caixa)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="newProdQty">Quantidade Inicial</label>
+            <input type="number" id="newProdQty" inputmode="numeric" pattern="[0-9]*" min="0" value="0" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST DE NOTIFICAÇÃO -->
+  <div id="toast" class="toast no-print"></div>
+
+</body>
+</html>
